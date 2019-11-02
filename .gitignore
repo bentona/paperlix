@@ -6,4 +6,4 @@
 erl_crash.dump
 *.ez
 *.beam
-/config/*.exs
+/config/config.exs
