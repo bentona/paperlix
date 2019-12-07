@@ -31,43 +31,14 @@ defmodule Paperlix.Endpoint do
   end
 
   post "/toggle" do
-    case Paperlix.Client.status() do
-      "off" -> Paperlix.Client.start() |> fn(res) ->
-        send_resp(conn, elem(res, 0), elem(res,1))
-      end.()
-      "ready" -> Paperlix.Client.stop() |> fn(res) ->
-        send_resp(conn, elem(res, 0), elem(res,1))
-      end.()
-      status -> send_resp(conn, 200, "already #{status}")
-    end
-  end
-
-
-
-  # Handle incoming events, if the payload is the right shape, process the
-  # events, otherwise return an error.
-  post "/events" do
     {status, body} =
-      case conn.body_params do
-        %{"events" => events} -> {200, process_events(events)}
-        _ -> {422, missing_events()}
+      case Paperlix.Client.status() do
+        "off" -> Paperlix.Client.start()
+        "ready" -> Paperlix.Client.stop()
+        other -> {200, "already #{other}"}
       end
 
-    send_resp(conn, status, body)
-  end
-
-  defp process_events(events) when is_list(events) do
-    # Do some processing on a list of events
-    Poison.encode!(%{response: "Received Events!"})
-  end
-
-  defp process_events(_) do
-    # If we can't process anything, let them know :)
-    Poison.encode!(%{response: "Please Send Some Events!"})
-  end
-
-  defp missing_events do
-    Poison.encode!(%{error: "Expected Payload: { 'events': [...] }"})
+    send_resp(conn, status, Poison.encode!(%{response: body}))
   end
 
   # A catchall route, 'match' will match no matter the request method,
