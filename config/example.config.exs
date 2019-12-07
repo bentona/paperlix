@@ -1,3 +1,3 @@
 use Mix.Config
 
-config :paperlix, api_key: "abc123", machine_id: "xxyyzz"
+config :paperlix, api_key: "abc123", machine_id: "xxyyzz",  port: 4001

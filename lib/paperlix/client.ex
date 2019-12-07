@@ -1,4 +1,4 @@
-defmodule Paperlix.CLI do
+defmodule Paperlix.Client do
 
   def status do
     case get_machine() do
@@ -6,17 +6,7 @@ defmodule Paperlix.CLI do
       error -> error
     end
   end
-  
-  def main(args) do
-    [command] = args
-    res = case command do
-      "start" -> start()
-      "stop" -> stop()
-      "status" -> status()
-    end
-    IO.puts(res)
-  end
-  
+
   def get_machines do
     get('/machines/getMachines')
   end
@@ -35,8 +25,9 @@ defmodule Paperlix.CLI do
 
   def post(path) do
     case HTTPoison.post(format_url(path), '', headers()) do
-      {:ok, %{status_code: code}} -> code
-      {:error, %{reason: reason}} -> {:error, reason}
+      {:ok, %{status_code: code}} -> {code, "#{code}"}
+      {:error, %{reason: reason}} -> {400, "An error has occurred #{reason}"}
+      _ -> {:error, "An error has occurred"}
     end
   end
 
